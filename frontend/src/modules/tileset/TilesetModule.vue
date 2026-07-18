@@ -1,19 +1,18 @@
 <template>
   <div class="tileset-module">
+    <TileEditor />
   </div>
 </template>
 
 <script setup>
+import TileEditor from './TileEditor.vue'
 </script>
 
 <style scoped>
 .tileset-module {
   height: 100%;
-  overflow: auto;
+  overflow: hidden;
 }
-</style>
-
-<style scoped>
 .tileset-module {
   height: 100%;
   overflow: auto;
