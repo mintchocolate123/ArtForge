@@ -6,7 +6,7 @@
         :key="`${cell.row}-${cell.col}`"
         class="tile-cell"
         :class="{ named: cell.name, active: cell.name && cell.name === selectedTile }"
-        @click="tilesetStore.selectTile(cell.name)"
+        @click="tilesetStore.selectCell(cell.row, cell.col)"
         :title="cell.name || '未命名'"
       >
         <canvas :ref="el => setCanvas(el, cell.row, cell.col)" width="32" height="32"></canvas>

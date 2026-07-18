@@ -5,6 +5,7 @@ export const useTilesetStore = defineStore('tileset', () => {
     const tilesetData = ref(null)
     const tilesetImage = ref(null)
     const selectedTile = ref(null)
+    const selectedCell = ref(null)
     const tilemapConfig = ref({ tileSize: 16, spacing: 1, cols: 0, rows: 0 })
 
     function setTilemapConfig(tileSize, spacing, cols, rows) {
@@ -50,5 +51,13 @@ export const useTilesetStore = defineStore('tileset', () => {
         tilesetData.value.weights[tileName] = weight
     }
 
-    return { tilesetData, tilesetImage, selectedTile, loadJSON, loadImage, selectTile, updateRule, updateWeight, tilemapConfig, setTilemapConfig }
+    function selectCell(row, col) {
+        const name = Object.keys(tilesetData.value?.tiles || {})
+            .find(n => tilesetData.value.tiles[n].row === row && tilesetData.value.tiles[n].col === col)
+        selectedCell.value = { row, col, name: name || null }
+        if (name) selectedTile.value = name
+        else selectedTile.value = null
+    }
+
+    return { tilesetData, tilesetImage, selectedTile, loadJSON, loadImage, selectTile, updateRule, updateWeight, tilemapConfig, setTilemapConfig, selectedCell, selectCell }
 })

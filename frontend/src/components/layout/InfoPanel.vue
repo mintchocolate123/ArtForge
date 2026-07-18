@@ -4,23 +4,41 @@
       <span class="panel-title">詳細資訊</span>
     </div>
 
-    <div class="section" v-if="selectedResource">
-      <div class="section-title">選取的資源</div>
-      <div class="info-row">
-        <span class="info-label">名稱</span>
-        <span class="info-value">{{ selectedResource.name }}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">類型</span>
-        <span class="info-value">{{ selectedResource.suffix || '資料夾' }}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">路徑</span>
-        <span class="info-value path">{{ selectedResource.path }}</span>
-      </div>
-    </div>
+		<div class="section" v-if="selectedCell && tilesetData">
+			<div class="section-title">選取的圖塊</div>
+			<div class="tile-preview" v-if="tilesetImage">
+				<canvas ref="previewCanvas" width="64" height="64"></canvas>
+			</div>
+			<div class="info-row">
+				<span class="info-label">名稱</span>
+				<span class="info-value">{{ selectedCell.name || '未命名' }}</span>
+			</div>
+			<div class="info-row">
+				<span class="info-label">Row</span>
+				<span class="info-value">{{ selectedCell.row }}</span>
+			</div>
+			<div class="info-row">
+				<span class="info-label">Col</span>
+				<span class="info-value">{{ selectedCell.col }}</span>
+			</div>
+			<template v-if="selectedCell.name">
+				<div class="info-row">
+					<span class="info-label">權重</span>
+					<span class="info-value">{{ tilesetData.weights[selectedCell.name] || 1 }}</span>
+				</div>
+				<div class="section-title" style="margin-top: 12px">相鄰規則</div>
+				<div v-for="dir in ['up', 'down', 'left', 'right']" :key="dir" class="info-row">
+					<span class="info-label">{{ dirLabel[dir] }}</span>
+					<span class="info-value">{{ (tilesetData.rules[selectedCell.name]?.[dir] || []).length }} 種</span>
+				</div>
+			</template>
+		</div>
 
-    <div class="section" v-if="selectedTile && tilesetData">
+		<div class="empty" v-if="!selectedResource && !selectedCell">
+			<span>選取資源或圖塊後顯示資訊</span>
+		</div>
+
+    <div class="section" v-if="selectedResource && !selectedCell">
       <div class="section-title">選取的圖塊</div>
       <div class="tile-preview" v-if="tilesetImage">
         <canvas ref="previewCanvas" width="64" height="64"></canvas>
@@ -63,23 +81,22 @@ import { useTilesetStore } from '../../stores/tilesetStore'
 const appStore = useAppStore()
 const tilesetStore = useTilesetStore()
 const { selectedResource } = storeToRefs(appStore)
-const { selectedTile, tilesetData, tilesetImage } = storeToRefs(tilesetStore)
+const { selectedTile, selectedCell, tilesetData, tilesetImage } = storeToRefs(tilesetStore)
 
 const previewCanvas = ref(null)
 
 const dirLabel = { up: '↑ 上', down: '↓ 下', left: '← 左', right: '→ 右' }
 
-watch([selectedTile, tilesetImage], async () => {
-  if (!selectedTile.value || !tilesetImage.value || !previewCanvas.value) return
+watch([selectedCell, tilesetImage], async () => {
+  if (!selectedCell.value || !tilesetImage.value || !previewCanvas.value) return
   await nextTick()
-  const tile = tilesetData.value.tiles[selectedTile.value]
-  if (!tile) return
+  const { row, col } = selectedCell.value
   const ctx = previewCanvas.value.getContext('2d')
   ctx.imageSmoothingEnabled = false
   const tileSize = tilesetData.value.tile_size || 16
   const spacing = tilesetData.value.spacing || 0
-  const sx = tile.col * (tileSize + spacing)
-  const sy = tile.row * (tileSize + spacing)
+  const sx = col * (tileSize + spacing)
+  const sy = row * (tileSize + spacing)
   ctx.clearRect(0, 0, 64, 64)
   ctx.drawImage(tilesetImage.value, sx, sy, tileSize, tileSize, 0, 0, 64, 64)
 })
