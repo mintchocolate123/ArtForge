@@ -5,6 +5,11 @@
     </aside>
     <div class="panel-center">
       <ModuleTabs />
+      <div class="config-wrapper">
+        <ConfigPanel>
+          <slot name="config" />
+        </ConfigPanel>
+      </div>
       <div class="module-main">
         <slot name="main" />
       </div>
@@ -22,6 +27,7 @@
 import ResourcePanel from './ResourcePanel.vue'
 import ModuleTabs from './ModuleTabs.vue'
 import InfoPanel from './InfoPanel.vue'
+import ConfigPanel from '../common/ConfigPanel.vue'
 </script>
 
 <style scoped>
@@ -48,6 +54,14 @@ import InfoPanel from './InfoPanel.vue'
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
+}
+
+.config-wrapper {
+  position: absolute;
+  top: 36px;
+  left: 0;
+  z-index: 10;
 }
 
 .module-main {

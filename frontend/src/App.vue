@@ -1,5 +1,8 @@
 <template>
   <AppLayout>
+    <template #config>
+      <TilesetConfig v-if="currentModule === 'tileset'" />
+    </template>
     <template #main>
       <TilesetModule v-if="currentModule === 'tileset'" />
       <div v-else-if="currentModule === 'splice'" class="coming-soon">拼接功能開發中</div>
@@ -17,6 +20,7 @@ import { useAppStore } from './stores/appStore'
 import AppLayout from './components/layout/AppLayout.vue'
 import TilesetModule from './modules/tileset/TilesetModule.vue'
 import TileGrid from './modules/tileset/TileGrid.vue'
+import TilesetConfig from './modules/tileset/TilesetConfig.vue'
 
 const appStore = useAppStore()
 const { currentModule } = storeToRefs(appStore)

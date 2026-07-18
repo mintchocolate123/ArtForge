@@ -1,17 +1,17 @@
 <template>
   <div class="tileset-module">
-    <TilesetConfig />
   </div>
 </template>
 
 <script setup>
-import { storeToRefs } from 'pinia'
-import { useTilesetStore } from '../../stores/tilesetStore'
-import TilesetConfig from './TilesetConfig.vue'
-
-const tilesetStore = useTilesetStore()
-const { tilesetImage } = storeToRefs(tilesetStore)
 </script>
+
+<style scoped>
+.tileset-module {
+  height: 100%;
+  overflow: auto;
+}
+</style>
 
 <style scoped>
 .tileset-module {
