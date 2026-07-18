@@ -4,7 +4,7 @@
       <span>⚙ 設定</span>
       <span>{{ expanded ? '▼' : '▶' }}</span>
     </div>
-    <div class="config-body" v-if="expanded">
+    <div class="config-body" v-show="expanded">
       <slot />
     </div>
   </div>

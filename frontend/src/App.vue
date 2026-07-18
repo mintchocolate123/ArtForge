@@ -1,15 +1,15 @@
 <template>
   <AppLayout>
     <template #config>
-      <TilesetConfig v-if="currentModule === 'tileset'" />
+      <TilesetConfig v-show="currentModule === 'tileset'" />
     </template>
     <template #main>
-      <TilesetModule v-if="currentModule === 'tileset'" />
-      <div v-else-if="currentModule === 'splice'" class="coming-soon">拼接功能開發中</div>
-      <div v-else-if="currentModule === 'wfc'" class="coming-soon">WFC 模擬開發中</div>
+      <TilesetModule v-show="currentModule === 'tileset'" />
+      <div v-show="currentModule === 'splice'" class="coming-soon">拼接功能開發中</div>
+      <div v-show="currentModule === 'wfc'" class="coming-soon">WFC 模擬開發中</div>
     </template>
     <template #bottom>
-      <TileGrid v-if="currentModule === 'tileset'" />
+      <TileGrid v-show="currentModule === 'tileset'" />
     </template>
   </AppLayout>
 </template>
