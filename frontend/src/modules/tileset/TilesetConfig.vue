@@ -13,13 +13,30 @@
           <span class="file-picker-arrow">▼</span>
         </div>
       </div>
-      <div class="config-row">
-        <label>JSON</label>
-        <div class="file-picker" @click="openPicker('json')">
-          <span class="file-picker-value">{{ selectedJSONName || '-- 選擇 JSON --' }}</span>
-          <span class="file-picker-arrow">▼</span>
+
+      <template v-if="selectedPNGPath">
+        <div class="config-row">
+          <label>圖塊</label>
+          <input type="number" v-model.number="tileSize" min="1" style="width:60px; background:#1a1a2e; border:1px solid #0f3460; color:#e0e0e0; padding:4px 6px; font-family:'Courier New',monospace; font-size:11px;" @input="updatePreview" />
+          <span style="font-size:11px; color:#555;">px</span>
         </div>
-      </div>
+        <div class="config-row">
+          <label>間距</label>
+          <input type="number" v-model.number="spacing" min="0" style="width:60px; background:#1a1a2e; border:1px solid #0f3460; color:#e0e0e0; padding:4px 6px; font-family:'Courier New',monospace; font-size:11px;" @input="updatePreview" />
+          <span style="font-size:11px; color:#555;">px</span>
+        </div>
+        <div v-if="cols && rows" style="font-size:11px; color:#4caf50;">
+          {{ cols }} 欄 × {{ rows }} 列 = {{ cols * rows }} 個圖塊
+        </div>
+        <div class="config-row">
+          <label>JSON</label>
+          <div class="file-picker" @click="openPicker('json')">
+            <span class="file-picker-value">{{ selectedJSONName || '-- 選擇現有 JSON（可選）--' }}</span>
+            <span class="file-picker-arrow">▼</span>
+          </div>
+        </div>
+        <button @click="confirm" style="background:#e94560; border:none; color:white; padding:5px 12px; font-family:'Courier New',monospace; font-size:11px; cursor:pointer; align-self:flex-end; letter-spacing:1px;">確認</button>
+      </template>
     </div>
 
     <div class="picker-overlay" v-if="pickerVisible" @click.self="pickerVisible = false">
@@ -32,12 +49,7 @@
           <input v-model="searchQuery" placeholder="搜尋..." autofocus />
         </div>
         <div class="picker-list">
-          <div
-            v-for="f in filteredFiles"
-            :key="f.path"
-            class="picker-item"
-            @click="selectFile(f)"
-          >
+          <div v-for="f in filteredFiles" :key="f.path" class="picker-item" @click="selectFile(f)">
             <span class="picker-icon">{{ pickerType === 'png' ? '🖼️' : '📄' }}</span>
             <div class="picker-item-info">
               <span class="picker-item-name">{{ f.name }}</span>
@@ -69,41 +81,74 @@ const selectedPNGName = ref('')
 const selectedJSONPath = ref('')
 const selectedJSONName = ref('')
 
+const tileSize = ref(16)
+const spacing = ref(1)
+const cols = ref(0)
+const rows = ref(0)
+
 const filteredFiles = computed(() => {
-    if (!searchQuery.value) return pickerFiles.value
-    const q = searchQuery.value.toLowerCase()
-    return pickerFiles.value.filter(f =>
-        f.name.toLowerCase().includes(q) || f.path.toLowerCase().includes(q)
-    )
+  if (!searchQuery.value) return pickerFiles.value
+  const q = searchQuery.value.toLowerCase()
+  return pickerFiles.value.filter(f =>
+    f.name.toLowerCase().includes(q) || f.path.toLowerCase().includes(q)
+  )
 })
 
 async function openPicker(type) {
-    pickerType.value = type
-    searchQuery.value = ''
-    const suffix = type === 'png' ? '.png' : '.json'
-    const result = await listAllFiles(suffix)
-    pickerFiles.value = result.files || []
-    pickerVisible.value = true
+  pickerType.value = type
+  searchQuery.value = ''
+  const suffix = type === 'png' ? '.png' : '.json'
+  const result = await listAllFiles(suffix)
+  pickerFiles.value = result.files || []
+  pickerVisible.value = true
 }
 
 async function selectFile(file) {
-    pickerVisible.value = false
+  pickerVisible.value = false
 
-    if (pickerType.value === 'png') {
-        selectedPNGPath.value = file.path
-        selectedPNGName.value = file.name
-        const url = await getImageUrl(file.path)
-        const img = new Image()
-        img.onload = () => tilesetStore.loadImage(img)
-        img.src = url
-    } else {
-        selectedJSONPath.value = file.path
-        selectedJSONName.value = file.name
-        const result = await readFile(file.path)
-        if (result.content) {
-            tilesetStore.loadJSON(JSON.parse(result.content))
-        }
+  if (pickerType.value === 'png') {
+    selectedPNGPath.value = file.path
+    selectedPNGName.value = file.name
+    const url = await getImageUrl(file.path)
+    const img = new Image()
+    img.onload = () => {
+      tilesetStore.loadImage(img)
+      updatePreview()
     }
+    img.src = url
+  } else {
+    selectedJSONPath.value = file.path
+    selectedJSONName.value = file.name
+  }
+}
+
+function updatePreview() {
+  const image = tilesetStore.tilesetImage
+  if (!image) return
+  const ts = Number(tileSize.value)
+  const sp = Number(spacing.value)
+  cols.value = Math.floor((image.width + sp) / (ts + sp))
+  rows.value = Math.floor((image.height + sp) / (ts + sp))
+}
+
+async function confirm() {
+  if (selectedJSONPath.value) {
+    const result = await readFile(selectedJSONPath.value)
+    if (result.content) {
+      tilesetStore.loadJSON(JSON.parse(result.content))
+    }
+  } else {
+    tilesetStore.loadJSON({
+      tile_size: tileSize.value,
+      spacing: spacing.value,
+      tiles: {},
+      weights: {},
+      rules: {},
+      wfc: {}
+    })
+  }
+  tilesetStore.setTilemapConfig(tileSize.value, spacing.value, cols.value, rows.value)
+  expanded.value = false
 }
 </script>
 

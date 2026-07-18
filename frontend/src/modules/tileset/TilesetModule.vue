@@ -1,12 +1,6 @@
 <template>
   <div class="tileset-module">
     <TilesetConfig />
-    <div v-if="!tilesetImage" class="empty">
-    </div>
-    <div v-else>
-      <!-- 之後放編輯器 -->
-      <p style="color:#e0e0e0; padding:20px;">已載入資源</p>
-    </div>
   </div>
 </template>
 

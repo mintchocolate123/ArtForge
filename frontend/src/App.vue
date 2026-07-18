@@ -1,8 +1,13 @@
 <template>
   <AppLayout>
-    <TilesetModule v-if="currentModule === 'tileset'" />
-    <div v-else-if="currentModule === 'splice'" class="coming-soon">拼接功能開發中</div>
-    <div v-else-if="currentModule === 'wfc'" class="coming-soon">WFC 模擬開發中</div>
+    <template #main>
+      <TilesetModule v-if="currentModule === 'tileset'" />
+      <div v-else-if="currentModule === 'splice'" class="coming-soon">拼接功能開發中</div>
+      <div v-else-if="currentModule === 'wfc'" class="coming-soon">WFC 模擬開發中</div>
+    </template>
+    <template #bottom>
+      <TileGrid v-if="currentModule === 'tileset'" />
+    </template>
   </AppLayout>
 </template>
 
@@ -11,6 +16,7 @@ import { storeToRefs } from 'pinia'
 import { useAppStore } from './stores/appStore'
 import AppLayout from './components/layout/AppLayout.vue'
 import TilesetModule from './modules/tileset/TilesetModule.vue'
+import TileGrid from './modules/tileset/TileGrid.vue'
 
 const appStore = useAppStore()
 const { currentModule } = storeToRefs(appStore)

@@ -5,8 +5,11 @@
     </aside>
     <div class="panel-center">
       <ModuleTabs />
-      <div class="module-content">
-        <slot />
+      <div class="module-main">
+        <slot name="main" />
+      </div>
+      <div class="module-bottom">
+        <slot name="bottom" />
       </div>
     </div>
     <aside class="panel-right">
@@ -47,8 +50,15 @@ import InfoPanel from './InfoPanel.vue'
   overflow: hidden;
 }
 
-.module-content {
+.module-main {
   flex: 1;
+  overflow: auto;
+}
+
+.module-bottom {
+  height: 200px;
+  flex-shrink: 0;
+  border-top: 1px solid #0f3460;
   overflow: auto;
 }
 
