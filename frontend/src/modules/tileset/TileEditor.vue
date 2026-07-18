@@ -151,6 +151,7 @@ function updateEnabled() {
 <style scoped>
 .tile-editor {
   padding: 16px;
+  padding-top: 64px;
   height: 100%;
   overflow-y: auto;
   font-family: 'Courier New', monospace;
