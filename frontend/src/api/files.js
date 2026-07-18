@@ -5,6 +5,11 @@ export async function listFiles(path = '') {
     return res.json()
 }
 
+export async function listAllFiles(suffix = '') {
+    const res = await fetch(`${BASE_URL}/api/files/list_all?suffix=${encodeURIComponent(suffix)}`)
+    return res.json()
+}
+
 export async function readFile(path) {
     const res = await fetch(`${BASE_URL}/api/files/read?path=${encodeURIComponent(path)}`)
     return res.json()

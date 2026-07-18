@@ -23,6 +23,19 @@ def list_files(path: str = ""):
         })
     return {"files": sorted(files, key=lambda x: (not x["is_dir"], x["name"]))}
 
+@router.get("/list_all")
+def list_all_files(suffix: str = ""):
+    files = []
+    for f in RESOURCE_DIR.rglob("*"):
+        if f.is_file():
+            if not suffix or f.suffix.lower() == suffix:
+                files.append({
+                    "name": f.name,
+                    "path": str(f.relative_to(RESOURCE_DIR)),
+                    "suffix": f.suffix.lower(),
+                })
+    return {"files": sorted(files, key=lambda x: x["path"])}
+
 @router.get("/image")
 def get_image(path: str):
     target = RESOURCE_DIR / path
