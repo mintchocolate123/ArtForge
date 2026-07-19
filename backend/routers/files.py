@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Body
 from fastapi.responses import FileResponse
 from pathlib import Path
 
@@ -51,3 +51,11 @@ def read_file(path: str):
     if target.suffix.lower() == ".json":
         return {"content": target.read_text(encoding="utf-8")}
     return {"error": "不支援的檔案類型"}
+
+@router.post("/write")
+def write_file(path: str, content: str = Body(...)):
+    target = RESOURCE_DIR / path
+    if target.suffix.lower() != ".json":
+        return {"error": "只支援 JSON 檔案"}
+    target.write_text(content, encoding="utf-8")
+    return {"success": True}

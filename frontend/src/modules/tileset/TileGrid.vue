@@ -5,7 +5,10 @@
         v-for="cell in allCells"
         :key="`${cell.row}-${cell.col}`"
         class="tile-cell"
-        :class="{ named: cell.name, active: cell.name && cell.name === selectedTile }"
+        :class="{ 
+          named: cell.name && tilesetData?.tiles[cell.name]?.enabled !== false,
+          active: selectedCell?.row === cell.row && selectedCell?.col === cell.col 
+        }"
         @click="tilesetStore.selectCell(cell.row, cell.col)"
         :title="cell.name || '未命名'"
       >
@@ -23,7 +26,7 @@ import { storeToRefs } from 'pinia'
 import { useTilesetStore } from '../../stores/tilesetStore'
 
 const tilesetStore = useTilesetStore()
-const { tilesetData, tilesetImage, tilemapConfig, selectedTile } = storeToRefs(tilesetStore)
+const { tilesetData, tilesetImage, tilemapConfig, selectedTile, selectedCell } = storeToRefs(tilesetStore)
 
 const canvases = {}
 

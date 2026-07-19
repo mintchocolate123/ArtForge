@@ -3,7 +3,7 @@
     <div class="editor-section">
       <div class="editor-row">
         <label>啟用</label>
-        <input type="checkbox" v-model="editEnabled" @change="updateEnabled" />
+        <input type="checkbox" v-model="editEnabled" @change="() => { console.log('checkbox changed', editEnabled); updateEnabled() }" />
       </div>
     </div>
 
@@ -143,8 +143,23 @@ watch(selectedCell, (cell) => {
 })
 
 function updateEnabled() {
-  if (!selectedCell.value?.name) return
-  tilesetData.value.tiles[selectedCell.value.name].enabled = editEnabled.value
+  const { row, col } = selectedCell.value
+  
+  if (editEnabled.value) {
+    if (!selectedCell.value.name) {
+      const autoName = `tile_${row}_${col}`
+      tilesetStore.setTile(autoName, row, col)
+      tilesetStore.selectCell(row, col)
+    } else {
+      const tile = tilesetData.value.tiles[selectedCell.value.name]
+      tilesetData.value.tiles[selectedCell.value.name] = { ...tile, enabled: true }
+    }
+  } else {
+    if (selectedCell.value.name) {
+      const tile = tilesetData.value.tiles[selectedCell.value.name]
+      tilesetData.value.tiles[selectedCell.value.name] = { ...tile, enabled: false }
+    }
+  }
 }
 </script>
 

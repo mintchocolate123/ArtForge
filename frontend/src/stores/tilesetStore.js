@@ -12,6 +12,16 @@ export const useTilesetStore = defineStore('tileset', () => {
         tilemapConfig.value = { tileSize, spacing, cols, rows }
     }
 
+    function setTile(name, row, col) {
+        if (!tilesetData.value) return
+        tilesetData.value.tiles[name] = { row, col }
+    }
+
+    function removeTile(name) {
+        if (!tilesetData.value) return
+        delete tilesetData.value.tiles[name]
+    }
+
     function loadJSON(data) {
         tilesetData.value = data
         if (!data.rules) data.rules = {}
@@ -59,5 +69,37 @@ export const useTilesetStore = defineStore('tileset', () => {
         else selectedTile.value = null
     }
 
-    return { tilesetData, tilesetImage, selectedTile, loadJSON, loadImage, selectTile, updateRule, updateWeight, tilemapConfig, setTilemapConfig, selectedCell, selectCell }
+    const currentJSONPath = ref('')
+
+    async function saveJSON(path) {
+        const savePath = path || currentJSONPath.value
+        if (!savePath || !tilesetData.value) return false
+        
+        const enabledTiles = {}
+        const enabledWeights = {}
+        const enabledRules = {}
+        
+        for (const [name, tile] of Object.entries(tilesetData.value.tiles)) {
+            if (tile.enabled !== false) {
+                enabledTiles[name] = { row: tile.row, col: tile.col }
+                if (tilesetData.value.weights[name]) enabledWeights[name] = tilesetData.value.weights[name]
+                if (tilesetData.value.rules[name]) enabledRules[name] = tilesetData.value.rules[name]
+            }
+        }
+        
+        const saveData = {
+            ...tilesetData.value,
+            tiles: enabledTiles,
+            weights: enabledWeights,
+            rules: enabledRules,
+        }
+        
+        const { writeFile } = await import('../api/files')
+        const content = JSON.stringify(saveData, null, 2)
+        const result = await writeFile(savePath, content)
+        if (result.success) currentJSONPath.value = savePath
+        return result.success
+    }
+
+    return { tilesetData, tilesetImage, selectedTile, loadJSON, loadImage, selectTile, updateRule, updateWeight, tilemapConfig, setTilemapConfig, selectedCell, selectCell, currentJSONPath, saveJSON, setTile, removeTile }
 })

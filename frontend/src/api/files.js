@@ -18,3 +18,12 @@ export async function readFile(path) {
 export async function getImageUrl(path) {
     return `${BASE_URL}/api/files/image?path=${encodeURIComponent(path)}`
 }
+
+export async function writeFile(path, content) {
+    const res = await fetch(`${BASE_URL}/api/files/write?path=${encodeURIComponent(path)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(content)
+    })
+    return res.json()
+}

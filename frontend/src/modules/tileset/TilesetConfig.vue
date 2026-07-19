@@ -36,6 +36,9 @@
         />
       </div>
       <button class="btn-confirm" @click="confirm">確認</button>
+      <div class="config-row">
+        <button class="btn-save" @click="save">儲存</button>
+      </div>
     </div>
   </div>
 </template>
@@ -85,7 +88,15 @@ function updatePreview() {
 }
 
 async function confirm() {
+  if (tilesetStore.tilesetData && Object.keys(tilesetStore.tilesetData.tiles).length > 0) {
+    const save = window.confirm('切換 Tileset 前要儲存目前的變更嗎？')
+    if (save) {
+      await tilesetStore.saveJSON()
+    }
+  }
+
   if (selectedJSONPath.value) {
+    tilesetStore.currentJSONPath = selectedJSONPath.value
     const result = await readFile(selectedJSONPath.value)
     if (result.content) {
       tilesetStore.loadJSON(JSON.parse(result.content))
@@ -101,6 +112,16 @@ async function confirm() {
     })
   }
   tilesetStore.setTilemapConfig(tileSize.value, spacing.value, cols.value, rows.value)
+}
+
+async function save() {
+  if (!tilesetStore.currentJSONPath) {
+    const path = prompt('輸入儲存路徑（例如 tilesets/tileset.json）：')
+    if (!path) return
+    await tilesetStore.saveJSON(path)
+  } else {
+    await tilesetStore.saveJSON()
+  }
 }
 </script>
 
@@ -155,4 +176,16 @@ async function confirm() {
   align-self: flex-start;
 }
 .btn-confirm:hover { background: #c73652; }
+
+.btn-save {
+  background: #4caf50;
+  border: none;
+  color: white;
+  padding: 5px 12px;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+.btn-save:hover { background: #388e3c; }
 </style>
